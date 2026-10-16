@@ -1,4 +1,4 @@
-// Menu latéral « Mes cours » : formations > matières > cours > parties, méthode des J et tours de révision.
+// Menu latéral « Mes cours » : formations > matières > cours, méthode des J et tours de révision.
 import { h, icon, todayISO, addDays, formatShort } from './util.js';
 import {
   store, newFormation, newSubject, newCourse, newPart, syncPartSlots, removePartSlots,
@@ -123,32 +123,18 @@ function calCaret(p) {
 }
 
 function renderCourse(s, c) {
-  const single = c.parts.length === 1;
+  const p = c.parts[0]; // un cours = une série de J (les anciennes « parties » ont été séparées en cours)
   return h('div.course', null,
-    h('div.course-head.progress-row', progressProps(c.parts.map((p) => p.id)),
-      single ? calCaret(c.parts[0]) : caret(c),
+    h('div.course-head.progress-row', progressProps(c.parts.map((x) => x.id)),
+      p ? calCaret(p) : h('span.caret-space'),
       h('span.course-icon', null, icon('menu_book')),
       inlineInput(c.name, 'Nom du cours', (v) => silent(() => {
-        if (single && c.parts[0].name === c.name) c.parts[0].name = v;
         c.name = v;
+        if (p) p.name = v;
       }), '.course-name'),
-      h('button.icon-btn', { title: 'Découper en parties', onclick: () => addPart(s, c) }, icon('playlist_add')),
       h('button.icon-btn.danger-hover', { title: 'Supprimer le cours', onclick: () => deleteCourse(s, c) }, icon('delete'))
     ),
-    single
-      ? calShown(c.parts[0]) && h('div.course-body', null, renderPartDetail(s, c, c.parts[0]))
-      : !c.collapsed && h('div.course-body', null, c.parts.map((p) => renderPart(s, c, p)))
-  );
-}
-
-function renderPart(s, c, p) {
-  return h('div.part', null,
-    h('div.part-head.progress-row', progressProps([p.id]),
-      calCaret(p),
-      inlineInput(p.name, 'Nom de la partie du cours', (v) => silent(() => { p.name = v; }), '.part-name'),
-      h('button.icon-btn.danger-hover', { title: 'Supprimer la partie', onclick: () => deletePart(c, p) }, icon('close'))
-    ),
-    calShown(p) && renderPartDetail(s, c, p)
+    p && calShown(p) && h('div.course-body', null, renderPartDetail(s, c, p))
   );
 }
 
@@ -200,33 +186,12 @@ async function addCourse(s) {
   });
 }
 
-async function addPart(s, c) {
-  const name = await promptDialog({ title: 'Nouvelle partie de « ' + c.name + ' »', label: 'Nom de la partie du cours', placeholder: 'ex : Chapitre 2',
-    hint: 'La partie sera ajoutée à l\'intérieur de « ' + c.name + ' ». Pour un nouveau cours, utilise plutôt le + de la matière.' });
-  if (!name) return;
-  store.update(() => {
-    c.collapsed = false;
-    if (c.parts.length === 1 && c.parts[0].name === c.name) c.parts[0].name = 'Partie 1';
-    c.parts.push(newPart(name, s));
-  });
-}
-
 async function deleteCourse(s, c) {
-  const ok = await confirmDialog({ title: 'Suppression définitive', message: 'Toutes les parties de ce cours et leurs sessions de révision seront aussi supprimées.' });
+  const ok = await confirmDialog({ title: 'Suppression définitive', message: 'Toutes les sessions de révision de ce cours seront aussi supprimées.' });
   if (!ok) return;
   store.update((st) => {
     removePartSlots(st, c.parts.map((p) => p.id));
     s.courses = s.courses.filter((x) => x !== c);
-  });
-}
-
-async function deletePart(c, p) {
-  const ok = await confirmDialog({ title: 'Tu es sûr(e) que tu veux la supprimer ?', message: 'Attention ! Toutes les sessions de révisions seront aussi supprimées.' });
-  if (!ok) return;
-  store.update((st) => {
-    removePartSlots(st, [p.id]);
-    c.parts = c.parts.filter((x) => x !== p);
-    if (c.parts.length === 1) c.parts[0].name = c.name; // plus qu'une partie : c'est le cours entier
   });
 }
 
@@ -398,7 +363,7 @@ function reviewRoundDialog(s) {
   const to = h('input.field', { type: 'date', value: addDays(todayISO(), 13) });
   const list = h('div.round-list', null, parts.map(({ c, p }) => {
     const cb = h('input', { type: 'checkbox', checked: true, onchange: () => { cb.checked ? selected.add(p.id) : selected.delete(p.id); } });
-    return h('label.check-row', null, cb, c.parts.length > 1 ? `${c.name} — ${p.name}` : c.name);
+    return h('label.check-row', null, cb, c.name);
   }));
   const setAll = (v) => list.querySelectorAll('input').forEach((cb, i) => { cb.checked = v; v ? selected.add(parts[i].p.id) : selected.delete(parts[i].p.id); });
 

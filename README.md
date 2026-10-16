@@ -44,7 +44,7 @@ Hourra planifie tes révisions selon la **méthode des J**, une technique de ré
 
 ### 📅 Organisation
 - **Planning de la semaine** : navigation par semaine, progression par jour, missions en retard à rapatrier en un clic, glisser-déposer entre les jours.
-- **Mes cours** : formations → matières → cours → parties, avec des matières suggérées selon la formation (lycée, PASS/LAS, droit, prépa…).
+- **Mes cours** : formations → matières → cours, avec des matières suggérées selon la formation (lycée, PASS/LAS, droit, prépa…).
 - **Méthode des J** : un J0 et une grille de 35 J (de J1 à J120), avec J1, J3, J6, J9, J13, J16, J21, J30, J35, J44, J47, J60, J75, J90, J105 et J120 cochés par défaut.
 - **Tours de révisions** : répartit tous les cours d'une matière sur une période.
 - **Missions libres** (tâches) avec répétition, couleur et emoji, et **notes** sur chaque session.

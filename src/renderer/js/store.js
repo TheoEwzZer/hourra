@@ -145,6 +145,20 @@ export const store = {
       }
       this.state.migrations = { ...this.state.migrations, calFold: true };
     }
+    // Migration : plus de « parties » — chaque partie d'un cours découpé devient un cours à part entière
+    if (!this.state.migrations?.noParts) {
+      for (const f of this.state.formations) for (const s of f.subjects) {
+        s.courses = s.courses.flatMap((c) => {
+          if (c.parts.length <= 1) { if (c.parts[0]) c.parts[0].name = c.name; return [c]; }
+          return c.parts.map((p, i) => {
+            const name = !p.name || /^Partie \d+$/.test(p.name) ? (i === 0 ? c.name : `${c.name} (${p.name || i + 1})`) : p.name;
+            p.name = name;
+            return { ...c, id: i === 0 ? c.id : uid(), name, parts: [p] };
+          });
+        });
+      }
+      this.state.migrations = { ...this.state.migrations, noParts: true };
+    }
     this.state.ui.weekOf = null; // on ouvre toujours sur la semaine en cours
   },
 
@@ -281,9 +295,9 @@ export function describeSlot(slot) {
   }
   const badge = slot.kind === 'round' ? 'T' + slot.round : 'J' + slot.jNum;
   const f = store.findPart(slot.partId);
-  if (!f) return { title: 'Partie supprimée', subtitle: '', color: '#999', badge, emoji: '' };
+  if (!f) return { title: 'Cours supprimé', subtitle: '', color: '#999', badge, emoji: '' };
   return {
-    title: f.course.name + (f.course.parts.length > 1 ? ' — ' + f.part.name : ''),
+    title: f.course.name,
     subtitle: f.subject.name,
     color: f.subject.color,
     badge,

@@ -57,7 +57,7 @@ function openHelp() {
     body: h('div.help', null,
       h('div.help-steps', null,
         step('1', '🎓', 'Ajoute ta formation', 'Dans « Mes cours » (menu ☰), clique sur « Ajouter une formation ». On te propose directement les matières de ton année.'),
-        step('2', '📚', 'Ajoute tes cours', 'Dans chaque matière, ajoute tes cours avec le +. Tu peux les découper en parties (chapitres).'),
+        step('2', '📚', 'Ajoute tes cours', 'Dans chaque matière, ajoute tes cours avec le +, puis fixe leur J0.'),
         step('3', '📅', 'Fixe le J0', 'Le J0, c\'est le jour où tu vois le cours pour la première fois. Les révisions J1, J3, J6, J9, J13… (cases violettes) se placent toutes seules dans ton planning.'),
         step('4', '✅', 'Valide tes missions', 'Clique sur le rond d\'une session et choisis ton niveau : rouge, orange, jaune, vert clair ou vert foncé. Célébration garantie 🎆 !')),
       h('h3', null, '🧠 La méthode des J'),

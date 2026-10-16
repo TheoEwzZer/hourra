@@ -1,7 +1,7 @@
 {
   "name": "hourra",
   "productName": "Hourra",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Hourra – planning de révisions basé sur la méthode des J, hors-ligne et 100 % personnalisable",
   "main": "src/main.js",
   "author": "Theo Fabiano Mattei",
