@@ -1,0 +1,63 @@
+/* Polices embarquées : l'app fonctionne sans internet. */
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url('../vendor/fonts/material-symbols-rounded.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter Variable';
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../vendor/fonts/inter.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Nunito Variable';
+  font-weight: 200 1000;
+  font-display: swap;
+  src: url('../vendor/fonts/nunito.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Fredoka Variable';
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('../vendor/fonts/fredoka.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Comic Neue';
+  font-weight: 400;
+  src: url('../vendor/fonts/comic-neue-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Comic Neue';
+  font-weight: 700;
+  src: url('../vendor/fonts/comic-neue-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('../vendor/fonts/press-start.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Pacifico';
+  src: url('../vendor/fonts/pacifico.woff2') format('woff2');
+}
+
+.msi {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+  flex-shrink: 0;
+}
