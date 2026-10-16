@@ -201,7 +201,8 @@ async function addCourse(s) {
 }
 
 async function addPart(s, c) {
-  const name = await promptDialog({ title: 'Nouvelle partie de « ' + c.name + ' »', label: 'Nom de la partie du cours', placeholder: 'ex : Chapitre 2' });
+  const name = await promptDialog({ title: 'Nouvelle partie de « ' + c.name + ' »', label: 'Nom de la partie du cours', placeholder: 'ex : Chapitre 2',
+    hint: 'La partie sera ajoutée à l\'intérieur de « ' + c.name + ' ». Pour un nouveau cours, utilise plutôt le + de la matière.' });
   if (!name) return;
   store.update(() => {
     c.collapsed = false;
@@ -225,7 +226,7 @@ async function deletePart(c, p) {
   store.update((st) => {
     removePartSlots(st, [p.id]);
     c.parts = c.parts.filter((x) => x !== p);
-    if (c.parts.length === 1 && c.parts[0].name === 'Partie 1') c.parts[0].name = c.name;
+    if (c.parts.length === 1) c.parts[0].name = c.name; // plus qu'une partie : c'est le cours entier
   });
 }
 

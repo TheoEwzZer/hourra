@@ -56,7 +56,7 @@ export function confirmDialog({ title, message, okLabel = 'Supprimer', danger = 
   });
 }
 
-export function promptDialog({ title, label, value = '', placeholder = '', okLabel = 'Valider' }) {
+export function promptDialog({ title, label, value = '', placeholder = '', okLabel = 'Valider', hint = '' }) {
   return new Promise((resolve) => {
     let done = false;
     const input = h('input.field', { type: 'text', value, placeholder });
@@ -68,7 +68,7 @@ export function promptDialog({ title, label, value = '', placeholder = '', okLab
     };
     const m = openModal({
       title,
-      body: h('label.field-wrap', null, h('span.field-label', null, label), input),
+      body: h('div', null, h('label.field-wrap', null, h('span.field-label', null, label), input), hint && h('p.muted.small', null, hint)),
       onClose: () => { if (!done) resolve(null); },
       actions: [
         { label: 'Annuler', flat: true },

@@ -283,7 +283,7 @@ export function describeSlot(slot) {
   const f = store.findPart(slot.partId);
   if (!f) return { title: 'Partie supprimée', subtitle: '', color: '#999', badge, emoji: '' };
   return {
-    title: f.course.name + (f.course.parts.length > 1 || f.part.name !== f.course.name ? ' — ' + f.part.name : ''),
+    title: f.course.name + (f.course.parts.length > 1 ? ' — ' + f.part.name : ''),
     subtitle: f.subject.name,
     color: f.subject.color,
     badge,
