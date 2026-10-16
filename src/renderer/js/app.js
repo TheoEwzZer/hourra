@@ -9,6 +9,7 @@ import { renderDrawer, openEnrollDialog } from './drawer.js';
 import { renderPlanning, taskDialog } from './planning.js';
 import { openSettings } from './settings.js';
 import { openModal } from './dialogs.js';
+import { initUpdates, aboutBox } from './update.js';
 import { nextMessage, startBanner } from './banner.js';
 
 function renderHeader() {
@@ -55,6 +56,7 @@ function openHelp() {
     title: '🎈 Comment ça marche ?',
     wide: true,
     body: h('div.help', null,
+      aboutBox(),
       h('div.help-steps', null,
         step('1', '🎓', 'Ajoute ta formation', 'Dans « Mes cours » (menu ☰), clique sur « Ajouter une formation ». On te propose directement les matières de ton année.'),
         step('2', '📚', 'Ajoute tes cours', 'Dans chaque matière, ajoute tes cours avec le +, puis fixe leur J0.'),
@@ -102,6 +104,7 @@ async function main() {
   applyLayout();
   initTrail();
   initPets();
+  initUpdates();
   applySettings();
   lastBanner = bannerKey();
   renderDrawer();

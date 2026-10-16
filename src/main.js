@@ -106,24 +106,54 @@ ipcMain.handle('backup:import', async () => {
 
 ipcMain.handle('app:openDataFolder', () => shell.openPath(dataDir()));
 
-/** Mises à jour automatiques depuis les releases GitHub (version installée uniquement, pas la portable). */
-function checkForUpdates() {
-  if (!app.isPackaged || process.env.PORTABLE_EXECUTABLE_DIR) return;
-  try {
-    const { autoUpdater } = require('electron-updater');
-    autoUpdater.on('error', () => {}); // hors-ligne : on ignore, l'app marche sans internet
-    autoUpdater.checkForUpdatesAndNotify({
-      title: 'Hourra est à jour 🎉',
-      body: 'La version {version} sera installée à la prochaine fermeture de l\'app.',
-    }).catch(() => {});
-  } catch {
-    // module absent : pas de mise à jour automatique
-  }
+// ---------- Mises à jour automatiques (releases GitHub, version installée uniquement) ----------
+const isPortable = () => Boolean(process.env.PORTABLE_EXECUTABLE_DIR);
+let updater = null;
+let update = { state: 'idle' }; // idle | disabled | checking | none | downloading | ready | error
+
+function setUpdate(next) {
+  update = next;
+  win?.webContents.send('update:status', update);
 }
+
+function initUpdater() {
+  if (!app.isPackaged || isPortable()) {
+    setUpdate({ state: 'disabled', reason: isPortable() ? 'portable' : 'dev' });
+    return;
+  }
+  try {
+    ({ autoUpdater: updater } = require('electron-updater'));
+  } catch {
+    setUpdate({ state: 'disabled', reason: 'dev' });
+    return;
+  }
+  updater.autoDownload = true;
+  updater.autoInstallOnAppQuit = true; // sinon, installée à la fermeture de l'app
+  updater.on('checking-for-update', () => setUpdate({ state: 'checking' }));
+  updater.on('update-not-available', () => setUpdate({ state: 'none', checkedAt: Date.now() }));
+  updater.on('update-available', (info) => setUpdate({ state: 'downloading', version: info.version, percent: 0 }));
+  updater.on('download-progress', (p) => setUpdate({ ...update, state: 'downloading', percent: Math.round(p.percent) }));
+  updater.on('update-downloaded', (info) => setUpdate({ state: 'ready', version: info.version }));
+  // Hors-ligne : l'app marche sans internet, on retentera plus tard
+  updater.on('error', () => setUpdate({ state: 'error' }));
+  checkForUpdates();
+  setInterval(checkForUpdates, 4 * 60 * 60 * 1000);
+}
+
+function checkForUpdates() {
+  if (!updater || update.state === 'downloading' || update.state === 'ready') return;
+  updater.checkForUpdates().catch(() => setUpdate({ state: 'error' }));
+}
+
+ipcMain.handle('app:info', () => ({ version: require('../package.json').version, update }));
+ipcMain.handle('update:check', () => checkForUpdates());
+ipcMain.handle('update:install', () => {
+  if (update.state === 'ready') setImmediate(() => updater.quitAndInstall(true, true));
+});
 
 app.whenReady().then(() => {
   createWindow();
-  checkForUpdates();
+  win.webContents.once('did-finish-load', initUpdater);
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
