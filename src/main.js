@@ -3,6 +3,9 @@ const path = require('node:path');
 const fs = require('node:fs');
 const { pathToFileURL } = require('node:url');
 
+// Interface en français : les champs date s'affichent en JJ/MM/AAAA (et non MM/JJ/AAAA)
+app.commandLine.appendSwitch('lang', 'fr-FR');
+
 const dataDir = () => app.getPath('userData');
 const dataFile = () => path.join(dataDir(), 'hourra-data.json');
 // Ancienne version (« HipHipHip v2 ») : on récupère ses données au premier lancement
