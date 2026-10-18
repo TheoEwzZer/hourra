@@ -1,5 +1,5 @@
 // État de l'application + sauvegarde locale (fichier JSON dans le dossier utilisateur).
-import { uid, addDays, todayISO, debounce, schoolYearOf } from './util.js';
+import { uid, addDays, todayISO, fromISO, debounce, schoolYearOf } from './util.js';
 import { JOKES } from './jokes.js';
 
 export const SUBJECT_COLORS = ['#4aa8f0', '#f0644a', '#4cd07d', '#a46cf0', '#ffb43a', '#f05aa0', '#2ec4c4', '#7a8cff', '#ff8a3d', '#8bc34a', '#e0457b', '#5c6bc0'];
@@ -159,6 +159,11 @@ export const store = {
       }
       this.state.migrations = { ...this.state.migrations, noParts: true };
     }
+    // Migration : les J antérieurs au dernier J validé de chaque cours sont considérés comme faits
+    if (!this.state.migrations?.jBackfill) {
+      backfillDoneJ(this.state);
+      this.state.migrations = { ...this.state.migrations, jBackfill: true };
+    }
     this.state.ui.weekOf = null; // on ouvre toujours sur la semaine en cours
   },
 
@@ -258,6 +263,32 @@ export function syncPartSlots(state, partId) {
       if (!slot.done && !slot.moved) slot.date = date;
     } else {
       state.slots.push({ id: uid(), kind: 'J', partId, jNum: n, date, done: false, sentiment: null, note: '', order: Date.now() });
+    }
+  }
+}
+
+/**
+ * Pour chaque cours, coche les J par défaut manquants avant le dernier J validé,
+ * puis valide toutes les sessions J antérieures (comptées à leur date prévue).
+ */
+function backfillDoneJ(state) {
+  for (const f of state.formations) for (const s of f.subjects) {
+    if (s.method !== 'J') continue;
+    for (const c of s.courses) for (const p of c.parts) {
+      if (!p.j0) continue;
+      const last = state.slots
+        .filter((x) => x.kind === 'J' && x.partId === p.id && x.done)
+        .reduce((m, x) => Math.max(m, x.jNum), -1);
+      if (last <= 0) continue;
+      p.days = [...new Set([...p.days, ...DEFAULT_J_DAYS.filter((n) => n < last)])].sort((a, b) => a - b);
+      syncPartSlots(state, p.id);
+      for (const slot of state.slots) {
+        if (slot.kind !== 'J' || slot.partId !== p.id || slot.done || slot.jNum >= last) continue;
+        slot.done = true;
+        slot.doneAt = fromISO(slot.date).getTime() + 12 * 3600000;
+        state.stats.byDate[slot.date] = (state.stats.byDate[slot.date] || 0) + 1;
+        state.stats.totalDone++;
+      }
     }
   }
 }
